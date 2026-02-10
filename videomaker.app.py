@@ -2,90 +2,95 @@ import streamlit as st
 import google.generativeai as genai
 
 # 페이지 설정
-st.set_page_config(page_title="대천명 AI 비서실", layout="centered", page_icon="🎬")
+st.set_page_config(page_title="대천명 8분 영상 자동화실", layout="centered", page_icon="🎬")
 
-# 스타일 설정 (깔끔한 디자인)
+# 스타일 설정
 st.markdown("""
     <style>
-    .main { background-color: #f5f7f9; }
-    .stButton>button { width: 100%; border-radius: 5px; height: 3em; background-color: #ff4b4b; color: white; }
+    .main { background-color: #f9f9f9; }
+    .stButton>button { width: 100%; border-radius: 8px; height: 3.5em; background-color: #007bff; color: white; font-weight: bold; }
+    .stTextArea>div>div>textarea { font-size: 16px; }
     </style>
     """, unsafe_allow_stdio=True)
 
-st.title("🎬 대천명 5분 영상 자동화 (무료 버전)")
-st.info("구글의 무료 비서(Gemini)를 사용하여 원고를 생성합니다.")
+st.title("🎬 대천명 '8분+' 영상 원고 생성기")
+st.info("이 시스템은 수익 창출을 위한 8분 이상의 풍성한 원고를 만드는 데 최적화되어 있습니다.")
 
 # --- 🔑 1단계: API 키 설정 ---
-with st.expander("🔑 구글 비서 출근시키기 (필수 설정)", expanded=True):
-    google_api_key = st.text_input("Google Gemini API Key를 입력하세요", type="password", help="AI Studio에서 발급받은 키를 넣어주세요.")
+with st.sidebar:
+    st.header("🔑 설정")
+    google_api_key = st.text_input("Google Gemini API Key", type="password")
     if google_api_key:
         genai.configure(api_key=google_api_key)
-        st.success("비서가 출근 준비를 마쳤습니다!")
 
 # --- 📝 2단계: 주제 입력 및 원고 생성 ---
-st.header("1. 주제 입력 및 원고 생성")
-keyword = st.text_input("오늘의 영상 주제를 입력하세요", "노후에 혼자서도 당당하고 행복하게 사는 법")
+st.header("1. 주제 및 구성 설정")
+keyword = st.text_input("영상의 핵심 주제를 입력하세요", "노후에 혼자서도 외롭지 않고 당당하게 사는 법")
 
-if st.button("무료 비서에게 원고 맡기기"):
+if st.button("8분 분량 원고 생성 시작 (클릭)"):
     if not google_api_key:
-        st.error("먼저 구글 API 키를 입력해주셔야 비서를 부를 수 있습니다!")
+        st.error("왼쪽 사이드바에 구글 API 키를 먼저 넣어주세요!")
     else:
-        with st.spinner("구글 비서가 원고를 정성껏 작성 중입니다. 잠시만 기다려주세요..."):
-            # 감성 프롬프트 설정
-            prompt = f"""
-            당신은 60대 이상 시니어들에게 ‘삶의 지혜’를 전하는 따뜻하고 공감 능력이 뛰어난 전문 작가이자 스님/목회자 같은 멘토입니다.
-            주제: '{keyword}'
+        with st.spinner("비서가 8분 분량(3,000자)의 대작을 집필 중입니다. 약 20~30초만 기다려주세요..."):
             
-            [지시사항]
-            1. 시니어들이 깊이 공감할 수 있는 감동적인 이야기나 우화를 바탕으로 작성하세요.
-            2. 10분 내외 분량(공백 제외 2,500자 이상)의 아주 풍부한 나레이션 산문 형식으로 써주세요.
-            3. 톤은 차분하고, 부드러우며, 시청자의 마음을 어루만지는 ‘KBS 다큐멘터리 성우’ 톤입니다.
-            4. 문장은 짧고 명확하게 하되, 중간중간 감정이입을 극대화할 수 있는 묘사를 넣으세요.
-               (예: "목 끝이 아려왔습니다.", "주름진 어머니의 손을 가만히 잡아보았습니다.")
-            5. 마지막엔 시청자들에게 따뜻한 위로의 한마디를 건네며 마무리하세요.
+            # 분량 확보를 위한 체계적인 프롬프트
+            prompt = f"""
+            당신은 구독자 50만 명을 보유한 시니어 전문 유튜버이자 심리 상담가입니다.
+            주제: '{keyword}'를 바탕으로 8분 이상(공백 제외 3,000자 이상)의 유튜브 나레이션 원고를 작성하세요.
+
+            [원고 필수 구성 요소]
+            1. 도입부(1분): 시청자의 외로움과 고민을 깊이 공감하고, 오늘 이야기가 왜 중요한지 강조 (천천히 말을 거는 느낌)
+            2. 본론(6분 이상): 
+               - 사례 1: 깊이 있는 불교 혹은 성경 우화와 현대적 해석
+               - 사례 2: 우리가 일상에서 흔히 겪는 구체적인 인간관계 갈등과 지혜로운 해결법
+               - 사례 3: 노후의 품격을 높이는 마음가짐과 실천 방안
+            3. 결론(1분): 오늘 내용을 핵심 요약하고, 시청자의 삶을 응원하는 따뜻한 축복의 메시지
+
+            [작성 규칙]
+            - 전체 글자 수는 반드시 3,000자 내외가 되어야 함.
+            - 문장은 짧게 끊어서 쓰되, 성우가 읽을 때 감정을 실을 수 있도록 '...' 이나 '아려왔습니다' 같은 감성적 표현을 풍부하게 사용.
+            - 시니어들이 듣기 편하도록 전문 용어보다는 쉬운 비유를 사용하세요.
             """
             
             try:
-                # 1순위 모델 시도 (Flash)
+                # 긴 글 작성을 위해 성능이 좋은 모델 우선 시도
+                model = genai.GenerativeModel('gemini-1.5-pro') 
+                response = model.generate_content(prompt)
+                st.session_state['final_script'] = response.text
+                st.success(f"원고 생성 완료! (공백 포함 약 {len(response.text)}자 확보)")
+            except:
+                # Pro가 안 될 경우 Flash 모델로 재시도
                 model = genai.GenerativeModel('gemini-1.5-flash-latest')
                 response = model.generate_content(prompt)
                 st.session_state['final_script'] = response.text
-                st.success("원고가 완성되었습니다!")
-            except Exception as e:
-                # 2순위 모델 시도 (Pro)
-                try:
-                    model = genai.GenerativeModel('gemini-pro')
-                    response = model.generate_content(prompt)
-                    st.session_state['final_script'] = response.text
-                    st.success("원고가 완성되었습니다! (기본 모델 사용)")
-                except Exception as e2:
-                    st.error(f"비서가 응답하지 않습니다. 에러 내용: {e2}")
+                st.success("Flash 모델로 원고 작성을 마쳤습니다.")
 
 # --- ✨ 3단계: 한끗 터치 및 다운로드 ---
 if 'final_script' in st.session_state:
     st.markdown("---")
-    st.header("2. 대천명의 '한끗 터치'")
-    st.subheader("비서가 80%를 썼습니다. 이제 대표님의 영혼 20%를 채워주세요.")
+    st.header("2. 대천명의 '한끗 터치' (마지막 점검)")
     
-    # 텍스트 에디터
+    # 대표님이 직접 수정할 수 있는 편집창
     final_touch = st.text_area(
-        "AI 원고 내용을 확인하고, 본인의 경험이나 감정 한 줄을 자유롭게 추가하세요.", 
+        "내용을 읽어보며 대표님의 경험이나 감정을 한두 줄 추가해 보세요. (글자 수 확인용)", 
         st.session_state['final_script'], 
-        height=500
+        height=600
     )
     
-    st.markdown("### ✅ 마무리 단계")
+    # 글자 수 실시간 표시 (8분 달성 확인용)
+    st.caption(f"현재 글자 수: 약 {len(final_touch)}자 (2,800자 이상이면 8분 영상이 가능합니다.)")
+    
     col1, col2 = st.columns(2)
     with col1:
         st.download_button(
-            label="📄 원고 파일(.txt) 다운로드",
+            label="📄 원고(.txt)로 저장하기",
             data=final_touch,
-            file_name=f"{keyword}_원고.txt",
+            file_name=f"{keyword}_8분원고.txt",
             mime="text/plain"
         )
     with col2:
-        if st.button("✨ 썸네일 문구 추천받기"):
-            st.warning(f"추천: '{keyword}' - 이 한 줄만으로 인생이 달라집니다.")
+        if st.button("📸 이미지 프롬프트 생성 (ImageFX용)"):
+            st.info("이 원고에 어울리는 이미지 묘사를 생성합니다. (준비 중)")
 
 st.markdown("---")
-st.caption("대천명의 '하루 30분 시스템' | Powered by Google Gemini Free Tier")
+st.caption("대천명 '하루 30분 시스템' - 8분 영상 수익화 모델")
